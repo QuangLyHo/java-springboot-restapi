@@ -38,9 +38,9 @@ tasks.named('test') {
     testLogging {
         events "passed", "skipped", "failed"
         showExceptions true
-        exceptionFormat "short"
+        exceptionFormat "full"
         showCauses true
         showStackTraces false
-        showStandardStreams = true
+        showStandardStreams = false
     }
 }
