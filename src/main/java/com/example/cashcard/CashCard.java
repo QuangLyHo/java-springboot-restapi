@@ -2,6 +2,9 @@ package com.example.cashcard;
 
 import org.springframework.data.annotation.Id;
 
-record CashCard(@Id Long id, Double amount, String owner) {
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+record CashCard(@Id Long id, @NotNull @Positive Double amount, String owner) {
 
 }

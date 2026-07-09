@@ -216,6 +216,17 @@ class CashCardApplicationTests {
     }
 
     @Test
+    void invalidCashCardPayload() {
+        CashCard badCard = new CashCard(null, -1.00, "sarah1");
+
+        ResponseEntity<String> createResponse = restTemplate
+                .withBasicAuth("sarah1", "abc123")
+                .postForEntity("/cashcards", badCard, String.class);
+  
+        assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
     @DirtiesContext
     void shouldDeleteAnExistingCashCard() {
         ResponseEntity<Void> response = restTemplate
@@ -249,8 +260,20 @@ class CashCardApplicationTests {
                 .getForEntity("/cashcards/102", String.class);
         assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
-}
 
-/**
- * 
- */
+    @Test
+    void shouldReturnOwnerAndAmountGreaterThan() {
+        ResponseEntity<String> response = restTemplate
+                .withBasicAuth("sarah1", "abc123")
+                .getForEntity("/cashcards/search?minAmount=10", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+
+        int cashCardCount = documentContext.read("$.length()");
+        assertThat(cashCardCount).isEqualTo(2);
+
+        JSONArray cashCardAmounts = documentContext.read("$..amount");
+        assertThat(cashCardAmounts).containsExactlyInAnyOrder(123.45, 150.00);
+    }
+}

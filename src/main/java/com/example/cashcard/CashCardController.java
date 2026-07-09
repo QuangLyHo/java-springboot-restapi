@@ -10,8 +10,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,7 +52,7 @@ public class CashCardController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createCashCard(@RequestBody CashCard newCashCardRequest,
+    public ResponseEntity<Void> createCashCard(@Valid @RequestBody CashCard newCashCardRequest,
             UriComponentsBuilder ucb, Principal principal) {
 
         CashCard cashCardWithOwner = new CashCard(
@@ -82,7 +86,7 @@ public class CashCardController {
     @PutMapping("/{requestedId}")
     public ResponseEntity<Void> putCashCard(
             @PathVariable Long requestedId, 
-            @RequestBody CashCard cashCardUpdate,
+            @Valid @RequestBody CashCard cashCardUpdate,
             Principal principal) {
 
         CashCard cashCard = findCashCard(requestedId, principal);
@@ -106,6 +110,15 @@ public class CashCardController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
-        
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<CashCard>> findByOwnerAndAmount(
+           Principal principal, @RequestParam Double minAmount) {
+        List<CashCard> cashCards = cashCardRepository.findByOwnerAndAmountGreaterThan(principal.getName(), minAmount);
+
+        
+        return ResponseEntity.ok(cashCards);
+    }
+
 }
